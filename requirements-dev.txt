@@ -1,0 +1,6 @@
+cachetools
+flake8
+mock
+pytest
+requests
+requests-mock
