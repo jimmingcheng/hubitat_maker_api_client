@@ -34,6 +34,9 @@ FAKE_URL_HSM = '{}/hsm?access_token={}'.format(
     FAKE_ACCESS_TOKEN,
 )
 
+FAKE_DEVICE_DATE = '2019-12-07T03:57:07+0000'
+FAKE_DEVICE_TIMESTAMP = 1575691027
+
 FAKE_SWITCH_ON = {
     'id': '1',
     'label': 'Kitchen Ceiling',
@@ -41,6 +44,7 @@ FAKE_SWITCH_ON = {
     'attributes': {
         'switch': 'on',
     },
+    'date': FAKE_DEVICE_DATE,
 }
 
 FAKE_SWITCH_OFF = {
@@ -50,6 +54,7 @@ FAKE_SWITCH_OFF = {
     'attributes': {
         'switch': 'off',
     },
+    'date': FAKE_DEVICE_DATE,
 }
 
 FAKE_LUX_1 = {
@@ -59,6 +64,7 @@ FAKE_LUX_1 = {
     'attributes': {
         'illuminance': '30',
     },
+    'date': FAKE_DEVICE_DATE,
 }
 
 FAKE_LUX_2 = {
@@ -68,6 +74,7 @@ FAKE_LUX_2 = {
     'attributes': {
         'illuminance': '70',
     },
+    'date': FAKE_DEVICE_DATE,
 }
 
 FAKE_DEVICES_ALL = [
@@ -138,7 +145,7 @@ def test_update_from_hubitat_event_mode(mock_client):
 
     mock_client.update_from_hubitat_event(
         HubitatEvent({
-            'deviceId': 'home',
+            'deviceId': None,
             'displayName': 'Home',
             'name': 'mode',
             'value': FAKE_INACTIVE_MODE,
@@ -154,7 +161,7 @@ def test_update_from_hubitat_event_hsm(mock_client):
     mock_client.update_from_hubitat_event(
         HubitatEvent({
             'deviceId': None,
-            'displayName': None,
+            'displayName': 'Home',
             'name': 'hsmStatus',
             'value': HSM_STATE_ARMED_AWAY,
         })
@@ -166,21 +173,22 @@ def test_update_from_hubitat_event_hsm(mock_client):
 def test_update_from_hubitat_event_lux(mock_client):
     lux_1 = int(FAKE_LUX_1['attributes']['illuminance'])
     lux_2 = lux_1 + 1
-    assert mock_client.get_lux_readings()[FAKE_LUX_1['label']] == lux_1
+    assert mock_client.get_last_device_value(FAKE_LUX_1['label'], 'illuminance') == str(lux_1)
 
     mock_client.update_from_hubitat_event(make_event(FAKE_LUX_1, 'illuminance', str(lux_2)))
 
-    assert mock_client.get_lux_readings()[FAKE_LUX_1['label']] == lux_2
+    assert mock_client.get_last_device_value(FAKE_LUX_1['label'], 'illuminance') == str(lux_2)
 
 
-def test_get_last_device_activity(mock_client, mock_time):
-    fake_timestamp = 1575573796
-    mock_time.return_value = fake_timestamp
+def test_get_last_device_timestamp(mock_client, mock_time):
+    mock_time.return_value = FAKE_DEVICE_TIMESTAMP + 1
 
-    assert mock_client.get_last_device_activity(FAKE_SWITCH_OFF['label'], 'switch', 'off') is None
-    assert mock_client.get_last_device_activity(FAKE_SWITCH_OFF['label'], 'switch', 'on') is None
+    device_label = FAKE_SWITCH_OFF['label']
+
+    assert mock_client.get_last_device_timestamp(device_label, 'switch', 'off') == FAKE_DEVICE_TIMESTAMP
+    assert mock_client.get_last_device_timestamp(device_label, 'switch', 'on') is None
 
     mock_client.update_from_hubitat_event(make_event(FAKE_SWITCH_OFF, 'switch', 'on'))
 
-    assert mock_client.get_last_device_activity(FAKE_SWITCH_OFF['label'], 'switch', 'off') is None
-    assert mock_client.get_last_device_activity(FAKE_SWITCH_OFF['label'], 'switch', 'on') == fake_timestamp
+    assert mock_client.get_last_device_timestamp(device_label, 'switch', 'off') == FAKE_DEVICE_TIMESTAMP
+    assert mock_client.get_last_device_timestamp(device_label, 'switch', 'on') == FAKE_DEVICE_TIMESTAMP + 1

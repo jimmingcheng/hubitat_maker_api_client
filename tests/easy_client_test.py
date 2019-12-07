@@ -32,6 +32,8 @@ FAKE_URL_HSM = '{}/hsm?access_token={}'.format(
     FAKE_ACCESS_TOKEN,
 )
 
+FAKE_DEVICE_DATE = '2019-12-07T03:57:07+0000'
+
 FAKE_SWITCH_ON = {
     'id': '1',
     'label': 'Kitchen Ceiling',
@@ -39,6 +41,7 @@ FAKE_SWITCH_ON = {
     'attributes': {
         'switch': 'on',
     },
+    'date': FAKE_DEVICE_DATE,
 }
 
 FAKE_SWITCH_OFF = {
@@ -48,6 +51,7 @@ FAKE_SWITCH_OFF = {
     'attributes': {
         'switch': 'off',
     },
+    'date': FAKE_DEVICE_DATE,
 }
 
 FAKE_LUX_1 = {
@@ -57,6 +61,7 @@ FAKE_LUX_1 = {
     'attributes': {
         'illuminance': '30',
     },
+    'date': FAKE_DEVICE_DATE,
 }
 
 FAKE_LUX_2 = {
@@ -66,6 +71,7 @@ FAKE_LUX_2 = {
     'attributes': {
         'illuminance': '70',
     },
+    'date': FAKE_DEVICE_DATE,
 }
 
 FAKE_DEVICES_ALL = [
@@ -113,13 +119,6 @@ def test_get_switches(mock_client):
 
 def test_get_on_switches(mock_client):
     assert mock_client.get_on_switches() == {FAKE_SWITCH_ON['label']}
-
-
-def test_get_lux_readings(mock_client):
-    assert mock_client.get_lux_readings() == {
-        FAKE_LUX_1['label']: int(FAKE_LUX_1['attributes']['illuminance']),
-        FAKE_LUX_2['label']: int(FAKE_LUX_2['attributes']['illuminance']),
-    }
 
 
 def test_get_mode(mock_client):

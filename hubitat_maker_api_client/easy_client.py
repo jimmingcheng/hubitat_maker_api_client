@@ -138,12 +138,6 @@ class HubitatEasyClient():
     def get_present_users(self):
         return self.get_device_aliases_by_capability_and_attribute('PresenceSensor', 'presence', 'present')
 
-    def get_lux_readings(self):
-        return {
-            alias: int(attributes['illuminance'])
-            for alias, attributes in self._get_capability_to_alias_to_attributes()['IlluminanceMeasurement'].items()
-        }
-
     # Device commands
     def open_door(self, alias):
         return self.send_device_command_by_capability_and_alias('DoorControl', alias, 'open')
