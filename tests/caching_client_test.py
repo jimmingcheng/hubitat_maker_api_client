@@ -3,10 +3,11 @@ import mock
 import requests_mock
 import pytest
 
-from hubitat_maker_api_client.client import HubitatAPIClient
+from hubitat_maker_api_client.api_client import HubitatAPIClient
+from hubitat_maker_api_client.caching_client import HubitatCachingClient
 from hubitat_maker_api_client.constants import HSM_STATE_ARMED_AWAY
 from hubitat_maker_api_client.constants import HSM_STATE_DISARMED
-from hubitat_maker_api_client.easy_client_with_listener import HubitatEasyClientWithListener
+from hubitat_maker_api_client.device_cache import InMemoryDeviceCache
 from hubitat_maker_api_client.event_socket import HubitatEvent
 
 
@@ -107,12 +108,13 @@ def make_event(device, attr_key, attr_value):
 
 @pytest.fixture
 def mock_client():
-    return HubitatEasyClientWithListener(
+    return HubitatCachingClient(
         HubitatAPIClient(
             app_id=FAKE_APP_ID,
             access_token=FAKE_ACCESS_TOKEN,
             hub_id=FAKE_HUB_ID,
-        )
+        ),
+        InMemoryDeviceCache(),
     )
 
 
