@@ -50,7 +50,10 @@ class HubitatAPIClient():
         return self.api_get('/hsm')
 
     def set_hsm(self, hsm_state):
-        self.api_get(f'/hsm/{HSM_STATE_TO_ACTION[hsm_state]}')
+        self.send_hsm_command(HSM_STATE_TO_ACTION[hsm_state])
+
+    def send_hsm_command(self, command):
+        self.api_get(f'/hsm/{command}')
 
     def get_devices(self, brief=False):
         if brief:

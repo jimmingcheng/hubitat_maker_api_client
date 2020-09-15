@@ -103,6 +103,7 @@ def make_event(device, attr_key, attr_value):
         'displayName': device['label'],
         'name': attr_key,
         'value': attr_value,
+        'source': 'DEVICE',
     })
 
 
@@ -151,6 +152,7 @@ def test_update_from_hubitat_event_mode(mock_client):
             'displayName': 'Home',
             'name': 'mode',
             'value': FAKE_INACTIVE_MODE,
+            'source': 'LOCATION',
         })
     )
 
@@ -166,6 +168,7 @@ def test_update_from_hubitat_event_hsm(mock_client):
             'displayName': 'Home',
             'name': 'hsmStatus',
             'value': HSM_STATE_ARMED_AWAY,
+            'source': 'LOCATION',
         })
     )
 
