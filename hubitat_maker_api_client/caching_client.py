@@ -77,12 +77,14 @@ class HubitatCachingClient(HubitatClient):
     def get_hsm(self):
         return self.device_cache.get_last_device_attr_value(None, 'Home', 'hsmStatus')
 
-    def get_last_device_value(self, alias, attr_key):
-        capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
+    def get_last_device_value(self, alias, attr_key, capability=None):
+        if not capability:
+            capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
         return self.device_cache.get_last_device_attr_value(capability, alias, attr_key)
 
-    def get_last_device_timestamp(self, alias, attr_key, attr_value):
-        capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
+    def get_last_device_timestamp(self, alias, attr_key, attr_value, capability=None):
+        if not capability:
+            capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
         return self.device_cache.get_last_device_attr_timestamp(capability, alias, attr_key, attr_value)
 
     def update_from_hubitat_event(self, event):

@@ -103,6 +103,9 @@ class HubitatClient():
     def set_hsm(self, hsm_state):
         return self.api_client.set_hsm(hsm_state)
 
+    def send_hsm_command(self, command):
+        return self.api_client.send_hsm_command(command)
+
     # Device accessors
     def get_contact_sensors(self):
         return self.get_devices_by_capability('ContactSensor')
