@@ -114,4 +114,7 @@ class HubitatCachingClient(HubitatClient):
                         self.device_cache.remove_device_for_capability_and_attribute(capability, k, v, alias)
 
         self.device_cache.set_last_device_attr_value(capability, alias, event.attr_key, event.attr_value)
-        self.device_cache.set_last_device_attr_timestamp(capability, alias, event.attr_key, event.attr_value, event.timestamp)
+        if event.attr_key in ATTR_KEYS_WITH_NUMERIC_VALS:
+            self.device_cache.set_last_device_attr_timestamp(capability, alias, event.attr_key, None, event.timestamp)
+        else:
+            self.device_cache.set_last_device_attr_timestamp(capability, alias, event.attr_key, event.attr_value, event.timestamp)
