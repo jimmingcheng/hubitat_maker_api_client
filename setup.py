@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='hubitat_maker_api_client',
-    version='1.2.2',
+    version='1.2.3',
     description='Hubitat Maker API Client',
     long_description=long_description,
     long_description_content_type="text/markdown",

@@ -3,6 +3,7 @@ from hubitat_maker_api_client.client import HubitatClient
 
 
 ATTR_KEY_TO_CAPABILITY = {
+    'battery': 'MotionSensor',
     'contact': 'ContactSensor',
     'lock': 'Lock',
     'motion': 'MotionSensor',
