@@ -1,5 +1,11 @@
 from datetime import datetime
+from typing import Optional
+from typing import Set
+
+from hubitat_maker_api_client.api_client import HubitatAPIClient
 from hubitat_maker_api_client.client import HubitatClient
+from hubitat_maker_api_client.device_cache import DeviceCache
+from hubitat_maker_api_client.event_socket import HubitatEvent
 
 
 ATTR_KEY_TO_CAPABILITY = {
@@ -34,18 +40,18 @@ ATTR_KEYS_WITH_NUMERIC_VALS = [
 ]
 
 
-def date_to_timestamp(date_str):
+def date_to_timestamp(date_str: str) -> int:
     return int(datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z').timestamp())
 
 
 class HubitatCachingClient(HubitatClient):
     def __init__(
         self,
-        api_client,
-        device_cache,
-        alias_key='label',
-        event_key='device_label',
-        cache_writes_enabled=True,
+        api_client: HubitatAPIClient,
+        device_cache: DeviceCache,
+        alias_key: str = 'label',
+        event_key: str = 'device_label',
+        cache_writes_enabled: bool = True,
     ):
         super(HubitatCachingClient, self).__init__(api_client, alias_key)
         self.device_cache = device_cache
@@ -56,7 +62,7 @@ class HubitatCachingClient(HubitatClient):
             self.device_cache.clear()
             self.load_cache()
 
-    def load_cache(self):
+    def load_cache(self) -> None:
         self.device_cache.set_last_device_attr_value(None, 'Home', 'mode', self._get_mode_from_api())
         self.device_cache.set_last_device_attr_value(None, 'Home', 'hsmStatus', self._get_hsm_from_api())
 
@@ -76,31 +82,31 @@ class HubitatCachingClient(HubitatClient):
                         else:
                             self.device_cache.set_last_device_attr_timestamp(capability, alias, k, v, timestamp)
 
-    def get_devices_by_capability(self, capability):
+    def get_devices_by_capability(self, capability: str) -> Set[str]:
         return self.device_cache.get_devices_by_capability(capability)
 
-    def get_devices_by_capability_and_attribute(self, capability, attr_key, attr_value):
+    def get_devices_by_capability_and_attribute(self, capability: str, attr_key: str, attr_value: str) -> Set[str]:
         return self.device_cache.get_devices_by_capability_and_attribute(capability, attr_key, attr_value)
 
     # Device accessors
 
-    def get_mode(self):
+    def get_mode(self) -> Optional[str]:
         return self.device_cache.get_last_device_attr_value(None, 'Home', 'mode')
 
-    def get_hsm(self):
+    def get_hsm(self) -> str:
         return self.device_cache.get_last_device_attr_value(None, 'Home', 'hsmStatus')
 
-    def get_last_device_value(self, alias, attr_key, capability=None):
+    def get_last_device_value(self, alias: str, attr_key: str, capability: Optional[str] = None) -> str:
         if not capability:
             capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
         return self.device_cache.get_last_device_attr_value(capability, alias, attr_key)
 
-    def get_last_device_timestamp(self, alias, attr_key, attr_value, capability=None):
+    def get_last_device_timestamp(self, alias: str, attr_key: str, attr_value: str, capability: Optional[str] = None) -> int:
         if not capability:
             capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
         return self.device_cache.get_last_device_attr_timestamp(capability, alias, attr_key, attr_value)
 
-    def update_from_hubitat_event(self, event):
+    def update_from_hubitat_event(self, event: HubitatEvent) -> None:
         if not self.cache_writes_enabled:
             return
 
