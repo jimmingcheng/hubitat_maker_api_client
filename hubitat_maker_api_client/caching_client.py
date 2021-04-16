@@ -70,6 +70,9 @@ class HubitatCachingClient(HubitatClient):
         for device in devices:
             timestamp = date_to_timestamp(device['date'])
             alias = device[self.alias_key]
+
+            self.device_cache.set_capabilities_for_device_id(device['id'], set(device['capabilities']))
+
             for capability in device['capabilities']:
                 self.device_cache.add_device_for_capability(capability, alias)
 
@@ -87,6 +90,9 @@ class HubitatCachingClient(HubitatClient):
 
     def get_devices_by_capability_and_attribute(self, capability: str, attr_key: str, attr_value: str) -> Set[str]:
         return self.device_cache.get_devices_by_capability_and_attribute(capability, attr_key, attr_value)
+
+    def get_capabilities_for_device_id(self, device_id: int) -> Set[str]:
+        return self.device_cache.get_capabilities_for_device_id(device_id)
 
     # Device accessors
 

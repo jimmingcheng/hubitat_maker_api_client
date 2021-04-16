@@ -76,6 +76,12 @@ class HubitatClient():
                 aliases.append(alias)
         return self._get_alias_set(aliases)
 
+    def get_capabilities_for_device_id(self, device_id: int) -> Set[str]:
+        return {
+            capability for capability in self.api_client.get_device(device_id)['capabilities']
+            if type(capability) == str
+        }
+
     def send_device_command_by_capability_and_alias(self, capability: str, alias: str, command: str) -> dict:
         matched_device_ids = self._get_capability_to_alias_to_device_ids().get(capability, {}).get(alias, [])
         if not matched_device_ids:
