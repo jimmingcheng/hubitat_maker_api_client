@@ -90,7 +90,7 @@ class InMemoryDeviceCache(DeviceCache):
         return self.cached_cap_to_attr_to_aliases.get(k)
 
     def get_capabilities_for_device_id(self, device_id: int) -> Set[str]:
-        return self.cached_device_id_to_capabilities.get[device_id]
+        return self.cached_device_id_to_capabilities.get(device_id, set())
 
     def get_last_device_attr_value(self, capability: Optional[str], alias: str, attr_key: str) -> str:
         k = (capability, alias, attr_key)

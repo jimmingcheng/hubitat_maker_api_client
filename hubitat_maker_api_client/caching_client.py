@@ -116,9 +116,11 @@ class HubitatCachingClient(HubitatClient):
         if not self.cache_writes_enabled:
             return
 
-        capability = ATTR_KEY_TO_CAPABILITY.get(event.attr_key)
         alias = getattr(event, self.event_key)
-        if capability:
+
+        capabilities = self.get_capabilities_for_device_id(event.device_id) or {None}
+
+        for capability in capabilities:
             for cap, k, v in SUPPORTED_ACCESSOR_ATTRS:
                 if cap == capability and k == event.attr_key:
                     if v == event.attr_value:
@@ -126,8 +128,8 @@ class HubitatCachingClient(HubitatClient):
                     else:
                         self.device_cache.remove_device_for_capability_and_attribute(capability, k, v, alias)
 
-        self.device_cache.set_last_device_attr_value(capability, alias, event.attr_key, event.attr_value)
-        if event.attr_key in ATTR_KEYS_WITH_NUMERIC_VALS:
-            self.device_cache.set_last_device_attr_timestamp(capability, alias, event.attr_key, None, event.timestamp)
-        else:
-            self.device_cache.set_last_device_attr_timestamp(capability, alias, event.attr_key, event.attr_value, event.timestamp)
+            self.device_cache.set_last_device_attr_value(capability, alias, event.attr_key, event.attr_value)
+            if event.attr_key in ATTR_KEYS_WITH_NUMERIC_VALS:
+                self.device_cache.set_last_device_attr_timestamp(capability, alias, event.attr_key, None, event.timestamp)
+            else:
+                self.device_cache.set_last_device_attr_timestamp(capability, alias, event.attr_key, event.attr_value, event.timestamp)
