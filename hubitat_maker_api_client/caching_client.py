@@ -68,7 +68,6 @@ class HubitatCachingClient(HubitatClient):
 
         devices = self.api_client.get_devices()
         for device in devices:
-            timestamp = date_to_timestamp(device['date'])
             alias = device[self.alias_key]
 
             self.device_cache.set_capabilities_for_device_id(device['id'], set(device['capabilities']))
@@ -80,10 +79,12 @@ class HubitatCachingClient(HubitatClient):
                     if k not in UNSUPPORTED_ATTR_KEYS:
                         self.device_cache.add_device_for_capability_and_attribute(capability, k, v, alias)
                         self.device_cache.set_last_device_attr_value(capability, alias, k, v)
-                        if k in ATTR_KEYS_WITH_NUMERIC_VALS:
-                            self.device_cache.set_last_device_attr_timestamp(capability, alias, k, None, timestamp)
-                        else:
-                            self.device_cache.set_last_device_attr_timestamp(capability, alias, k, v, timestamp)
+                        if device['date']:
+                            timestamp = date_to_timestamp(device['date'])
+                            if k in ATTR_KEYS_WITH_NUMERIC_VALS:
+                                self.device_cache.set_last_device_attr_timestamp(capability, alias, k, None, timestamp)
+                            else:
+                                self.device_cache.set_last_device_attr_timestamp(capability, alias, k, v, timestamp)
 
     def get_devices_by_capability(self, capability: str) -> Set[str]:
         return self.device_cache.get_devices_by_capability(capability)
