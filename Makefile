@@ -1,5 +1,5 @@
 venv: requirements-dev.txt
-	virtualenv --python=python3.6 venv
+	virtualenv --python=python3.8 venv
 	venv/bin/pip install -r requirements-dev.txt
 
 .PHONY: test
@@ -7,8 +7,8 @@ test: venv
 	venv/bin/pytest tests/
 
 .PHONY: package
-package:
-	python setup.py sdist bdist_wheel
+package: venv
+	venv/bin/python setup.py sdist bdist_wheel
 
 .PHONY: deploy-to-pypi
 deploy-to-pypi: package
