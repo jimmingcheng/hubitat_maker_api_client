@@ -4,6 +4,12 @@ This library facilitates access to Hubitat's [Maker API](https://docs.hubitat.co
 
 ## Quick Start
 
+Install
+
+```
+pip install hubitat-maker-api-client
+```
+
 This sample code demonstrates how to configure a HubitatCachingClient using your `HOST`, `APP_ID`, `ACCESS_TOKEN` and `HUB_ID` along with your custom implementation of **DeviceCache**.
 
 ```
