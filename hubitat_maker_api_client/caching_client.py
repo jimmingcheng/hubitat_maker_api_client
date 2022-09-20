@@ -119,7 +119,7 @@ class HubitatCachingClient(HubitatClient):
 
         alias = getattr(event, self.event_key)
 
-        capabilities = self.get_capabilities_for_device_id(event.device_id) or {None}
+        capabilities = self.get_capabilities_for_device_id(event.device_id) or {None}  # type: ignore
 
         for capability in capabilities:
             for cap, k, v in SUPPORTED_ACCESSOR_ATTRS:

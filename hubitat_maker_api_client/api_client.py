@@ -44,7 +44,7 @@ class HubitatAPIClient():
     def get_modes(self) -> dict:
         return self.api_get('/modes')
 
-    def set_mode(self, mode_id: str) -> None:
+    def set_mode(self, mode_id: int) -> None:
         self.api_get(f'/modes/{mode_id}')
 
     def get_hsm(self) -> dict:
