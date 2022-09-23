@@ -44,7 +44,7 @@ This sample code demonstrates how to update device state on your HubitatCachingC
 ```
 import asyncio
 import websockets
-hubitat_maker_api_client import HubitatEvent
+from hubitat_maker_api_client import HubitatEvent
 
 async def listen(uri: str) -> None:
     async with websockets.connect(uri) as websocket:
