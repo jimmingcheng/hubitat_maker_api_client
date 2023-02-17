@@ -11,11 +11,13 @@ from hubitat_maker_api_client.event_socket import HubitatEvent
 ATTR_KEY_TO_CAPABILITY = {
     'battery': 'MotionSensor',
     'contact': 'ContactSensor',
+    'energy': 'EnergyMeter',
+    'illuminance': 'IlluminanceMeasurement',
     'lock': 'Lock',
     'motion': 'MotionSensor',
-    'switch': 'Switch',
+    'power': 'PowerMeter',
     'presence': 'PresenceSensor',
-    'illuminance': 'IlluminanceMeasurement',
+    'switch': 'Switch',
 }
 
 
