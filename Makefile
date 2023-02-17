@@ -12,7 +12,7 @@ package: venv
 
 .PHONY: deploy-to-pypi
 deploy-to-pypi: package
-	twine upload dist/*
+	venv/bin/twine upload dist/*
 
 .PHONY: clean
 clean:

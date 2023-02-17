@@ -6,5 +6,6 @@ pytest
 requests
 requests-mock
 setuptools
+twine
 types-cachetools
 types-requests
