@@ -46,6 +46,7 @@ FAKE_SWITCH_ON = {
         'switch': 'on',
     },
     'date': FAKE_DEVICE_DATE,
+    'room': 'Kitchen',
 }
 
 FAKE_SWITCH_OFF = {
@@ -56,6 +57,7 @@ FAKE_SWITCH_OFF = {
         'switch': 'off',
     },
     'date': FAKE_DEVICE_DATE,
+    'room': 'Porch',
 }
 
 FAKE_LUX_1 = {
@@ -66,6 +68,7 @@ FAKE_LUX_1 = {
         'illuminance': '30',
     },
     'date': FAKE_DEVICE_DATE,
+    'room': 'Office',
 }
 
 FAKE_LUX_2 = {
@@ -76,6 +79,7 @@ FAKE_LUX_2 = {
         'illuminance': '70',
     },
     'date': FAKE_DEVICE_DATE,
+    'room': 'Porch',
 }
 
 FAKE_DEVICES_ALL = [

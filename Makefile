@@ -1,6 +1,6 @@
-venv: requirements-dev.txt
-	virtualenv --python=python3.8 venv
-	venv/bin/pip install -r requirements-dev.txt
+venv: poetry.lock
+	python3 -m venv ./venv
+	. venv/bin/activate && pip install poetry && poetry install
 
 .PHONY: test
 test: venv

@@ -74,8 +74,9 @@ class HubitatAPIClient():
     def get_device_capabilities(self, device_id: int) -> dict:
         return self.api_get_device_endpoint(device_id, '/capabilities')
 
-    def send_device_command(self, device_id: int, command: str, secondary_value: Optional[str] = None) -> dict:
-        if secondary_value:
-            return self.api_get_device_endpoint(device_id, f'/{command}/{secondary_value}')
+    def send_device_command(self, device_id: int, command: str, *secondary_values) -> dict:
+        secondary_values_str = ','.join([str(v) for v in secondary_values])
+        if secondary_values_str:
+            return self.api_get_device_endpoint(device_id, '/' + command + '/' + secondary_values_str)
         else:
-            return self.api_get_device_endpoint(device_id, f'/{command}')
+            return self.api_get_device_endpoint(device_id, '/' + command)

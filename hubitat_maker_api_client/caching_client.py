@@ -76,6 +76,7 @@ class HubitatCachingClient(HubitatClient):
 
             for capability in device['capabilities']:
                 self.device_cache.add_device_for_capability(capability, alias)
+                self.device_cache.add_device_for_capability_and_room(capability, device['room'], alias)
 
                 for k, v in device['attributes'].items():
                     if k not in UNSUPPORTED_ATTR_KEYS:
@@ -91,6 +92,9 @@ class HubitatCachingClient(HubitatClient):
     def get_devices_by_capability(self, capability: str) -> Set[str]:
         return self.device_cache.get_devices_by_capability(capability)
 
+    def get_devices_by_capability_and_room(self, capability: str, room: Optional[str]) -> Set[str]:
+        return self.device_cache.get_devices_by_capability_and_room(capability, room)
+
     def get_devices_by_capability_and_attribute(self, capability: str, attr_key: str, attr_value: str) -> Set[str]:
         return self.device_cache.get_devices_by_capability_and_attribute(capability, attr_key, attr_value)
 
@@ -105,12 +109,12 @@ class HubitatCachingClient(HubitatClient):
     def get_hsm(self) -> str:
         return self.device_cache.get_last_device_attr_value(None, 'Home', 'hsmStatus')
 
-    def get_last_device_value(self, alias: str, attr_key: str, capability: Optional[str] = None) -> str:
+    def get_last_device_value(self, alias: str, attr_key: str, capability: Optional[str] = None) -> Optional[str]:
         if not capability:
             capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
         return self.device_cache.get_last_device_attr_value(capability, alias, attr_key)
 
-    def get_last_device_timestamp(self, alias: str, attr_key: str, attr_value: str, capability: Optional[str] = None) -> int:
+    def get_last_device_timestamp(self, alias: str, attr_key: str, attr_value: str, capability: Optional[str] = None) -> Optional[int]:
         if not capability:
             capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
         return self.device_cache.get_last_device_attr_timestamp(capability, alias, attr_key, attr_value)

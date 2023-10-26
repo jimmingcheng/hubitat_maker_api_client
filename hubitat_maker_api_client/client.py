@@ -32,6 +32,16 @@ class HubitatClient():
         return capability_to_alias_to_device_ids
 
     @ttl_cache(ttl=86400)
+    def _get_capability_to_room_to_aliases(self) -> Dict[str, Dict[Optional[str], List[str]]]:
+        capability_to_room_to_aliases: Dict[str, Dict[Optional[str], List[str]]] = defaultdict(lambda: defaultdict(list))
+        for device in self.api_client.get_devices():
+            for capability in device['capabilities']:
+                alias = device[self.alias_key]
+                room = device['room']
+                capability_to_room_to_aliases[capability][room].append(alias)
+        return capability_to_room_to_aliases
+
+    @ttl_cache(ttl=86400)
     def _get_mode_name_to_id(self) -> Dict[str, int]:
         return {
             mode['name']: mode['id']
@@ -69,6 +79,9 @@ class HubitatClient():
         aliases = list(alias_to_device_ids.keys())
         return self._get_alias_set(aliases)
 
+    def get_devices_by_capability_and_room(self, capability: str, room: Optional[str]) -> Set[str]:
+        return self._get_capability_to_room_to_aliases()[capability][room]
+
     def get_devices_by_capability_and_attribute(self, capability: str, attr_key: str, attr_value: str) -> Set[str]:
         aliases = []
         for alias, attributes in self._get_capability_to_alias_to_attributes()[capability].items():
@@ -82,14 +95,14 @@ class HubitatClient():
             if type(capability) == str
         }
 
-    def send_device_command_by_capability_and_alias(self, capability: str, alias: str, command: str) -> dict:
+    def send_device_command_by_capability_and_alias(self, capability: str, alias: str, command: str, *secondary_values) -> dict:
         matched_device_ids = self._get_capability_to_alias_to_device_ids().get(capability, {}).get(alias, [])
         if not matched_device_ids:
             raise DeviceNotFoundError('Unable to find {} {}'.format(capability, alias))
         elif len(matched_device_ids) > 1:
             raise MultipleDevicesFoundError('Multiple devices found for {} {}'.format(capability, alias))
         else:
-            return self.api_client.send_device_command(matched_device_ids[0], command)
+            return self.api_client.send_device_command(matched_device_ids[0], command, *secondary_values)
 
     # Mode
     def get_mode(self) -> Optional[str]:
@@ -171,3 +184,39 @@ class HubitatClient():
 
     def turn_off_switch(self, alias: str) -> dict:
         return self.send_device_command_by_capability_and_alias('Switch', alias, 'off')
+
+    def arrived(self, alias: str) -> dict:
+        return self.send_device_command_by_capability_and_alias('PresenceSensor', alias, 'arrived')
+
+    def departed(self, alias: str) -> dict:
+        return self.send_device_command_by_capability_and_alias('PresenceSensor', alias, 'departed')
+
+    def set_lux(self, alias: str, lux: int) -> dict:
+        return self.send_device_command_by_capability_and_alias('IlluminanceMeasurement', alias, 'setLux', lux)
+
+    # Echo speaks
+    def echo_set_volume_and_speak(self, alias: str, volume: int, message: str) -> dict:
+        return self.send_device_command_by_capability_and_alias('SpeechSynthesis', alias, 'setVolumeAndSpeak', volume, message)
+
+    def echo_voice_cmd_as_text(self, alias: str, message: str) -> dict:
+        return self.send_device_command_by_capability_and_alias('SpeechSynthesis', alias, 'voiceCmdAsText', message)
+
+    def echo_parallel_speak(self, alias: str, message: str) -> dict:
+        return self.send_device_command_by_capability_and_alias('SpeechSynthesis', alias, 'parallelSpeak', message)
+
+    def echo_set_volume_speak_and_restore(self, alias: str, volume: int, message: str, restore_volume: int) -> dict:
+        return self.send_device_command_by_capability_and_alias('SpeechSynthesis', alias, 'setVolumeSpeakAndRestore', volume, message, restore_volume)
+
+    def echo_play_announcement(self, alias: str, message: str) -> dict:
+        return self.send_device_command_by_capability_and_alias('SpeechSynthesis', alias, 'playAnnouncement', message)
+
+    def echo_play_announcement_all(self, alias: str, message: str) -> dict:
+        return self.send_device_command_by_capability_and_alias('SpeechSynthesis', alias, 'playAnnouncementAll', message)
+
+    def echo_room_announce(self, room: str, message: str) -> dict:
+        for echo in self.get_devices_by_capability_and_room('SpeechSynthesis', room):
+            self.echo_play_announcement(echo, message)
+
+    def echo_room_speak(self, room: str, message: str) -> dict:
+        for echo in self.get_devices_by_capability_and_room('SpeechSynthesis', room):
+            self.echo_parallel_speak(echo, message)
