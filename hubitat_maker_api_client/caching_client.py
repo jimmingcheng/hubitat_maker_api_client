@@ -1,32 +1,42 @@
 from datetime import datetime
 
 from hubitat_maker_api_client.api_client import HubitatAPIClient
-from hubitat_maker_api_client.client import Capability
+from hubitat_maker_api_client.capabilities import CapabilityAttrKey
+from hubitat_maker_api_client.capabilities import CapabilityName
+from hubitat_maker_api_client.capabilities import ContactSensorCapability
+from hubitat_maker_api_client.capabilities import EnergyMeterCapability
+from hubitat_maker_api_client.capabilities import IlluminanceMeasurementCapability
+from hubitat_maker_api_client.capabilities import LockCapability
+from hubitat_maker_api_client.capabilities import MotionSensorCapability
+from hubitat_maker_api_client.capabilities import PowerMeterCapability
+from hubitat_maker_api_client.capabilities import PresenceSensorCapability
+from hubitat_maker_api_client.capabilities import SwitchCapability
 from hubitat_maker_api_client.client import DeviceAlias
 from hubitat_maker_api_client.client import HubitatClient
+from hubitat_maker_api_client.client import RoomName
 from hubitat_maker_api_client.device_cache import DeviceCache
 from hubitat_maker_api_client.event_socket import HubitatEvent
 
 
 ATTR_KEY_TO_CAPABILITY = {
-    'battery': Capability('MotionSensor'),
-    'contact': Capability('ContactSensor'),
-    'energy': Capability('EnergyMeter'),
-    'illuminance': Capability('IlluminanceMeasurement'),
-    'lock': Capability('Lock'),
-    'motion': Capability('MotionSensor'),
-    'power': Capability('PowerMeter'),
-    'presence': Capability('PresenceSensor'),
-    'switch': Capability('Switch'),
+    'battery': MotionSensorCapability.name,
+    'contact': ContactSensorCapability.name,
+    'energy': EnergyMeterCapability.name,
+    'illuminance': IlluminanceMeasurementCapability.name,
+    'lock': LockCapability.name,
+    'motion': MotionSensorCapability.name,
+    'power': PowerMeterCapability.name,
+    'presence': PresenceSensorCapability.name,
+    'switch': SwitchCapability.name,
 }
 
 
 SUPPORTED_ACCESSOR_ATTRS = [
-    (Capability('ContactSensor'), 'contact', 'open'),
-    (Capability('Lock'), 'lock', 'unlocked'),
-    (Capability('MotionSensor'), 'motion', 'active'),
-    (Capability('Switch'), 'switch', 'on'),
-    (Capability('PresenceSensor'), 'presence', 'present'),
+    (ContactSensorCapability.name, 'contact', 'open'),
+    (LockCapability.name, 'lock', 'unlocked'),
+    (MotionSensorCapability.name, 'motion', 'active'),
+    (SwitchCapability.name, 'switch', 'on'),
+    (PresenceSensorCapability.name, 'presence', 'present'),
 ]
 
 
@@ -89,16 +99,16 @@ class HubitatCachingClient(HubitatClient):
                             else:
                                 self.device_cache.set_last_device_attr_timestamp(capability, alias, k, v, timestamp)
 
-    def get_devices_by_capability(self, capability: Capability) -> set[DeviceAlias]:
+    def get_devices_by_capability(self, capability: CapabilityName) -> set[DeviceAlias]:
         return self.device_cache.get_devices_by_capability(capability)
 
-    def get_devices_by_capability_and_room(self, capability: Capability, room: str | None) -> set[DeviceAlias]:
+    def get_devices_by_capability_and_room(self, capability: CapabilityName, room: RoomName | None) -> set[DeviceAlias]:
         return self.device_cache.get_devices_by_capability_and_room(capability, room)
 
-    def get_devices_by_capability_and_attribute(self, capability: Capability, attr_key: str, attr_value: str) -> set[DeviceAlias]:
+    def get_devices_by_capability_and_attribute(self, capability: CapabilityName, attr_key: CapabilityAttrKey, attr_value: str) -> set[DeviceAlias]:
         return self.device_cache.get_devices_by_capability_and_attribute(capability, attr_key, attr_value)
 
-    def get_capabilities_for_device_id(self, device_id: int) -> set[Capability]:
+    def get_capabilities_for_device_id(self, device_id: int) -> set[CapabilityName]:
         return self.device_cache.get_capabilities_for_device_id(device_id)
 
     # Device accessors
@@ -109,12 +119,12 @@ class HubitatCachingClient(HubitatClient):
     def get_hsm(self) -> str | None:
         return self.device_cache.get_last_device_attr_value(None, DeviceAlias('Home'), 'hsmStatus')
 
-    def get_last_device_value(self, alias: DeviceAlias, attr_key: str, capability: Capability | None = None) -> str | None:
+    def get_last_device_value(self, alias: DeviceAlias, attr_key: CapabilityAttrKey, capability: CapabilityName | None = None) -> str | None:
         if not capability:
             capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
         return self.device_cache.get_last_device_attr_value(capability, alias, attr_key)
 
-    def get_last_device_timestamp(self, alias: DeviceAlias, attr_key: str, attr_value: str, capability: Capability | None = None) -> int | None:
+    def get_last_device_timestamp(self, alias: DeviceAlias, attr_key: CapabilityAttrKey, attr_value: str, capability: CapabilityName | None = None) -> int | None:
         if not capability:
             capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
         return self.device_cache.get_last_device_attr_timestamp(capability, alias, attr_key, attr_value)

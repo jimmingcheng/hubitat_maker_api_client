@@ -2,8 +2,9 @@ from abc import ABC
 from abc import abstractmethod
 from collections import defaultdict
 
-from hubitat_maker_api_client.client import Capability
+from hubitat_maker_api_client.capabilities import CapabilityName
 from hubitat_maker_api_client.client import DeviceAlias
+from hubitat_maker_api_client.client import RoomName
 
 
 class DeviceCache(ABC):
@@ -14,65 +15,65 @@ class DeviceCache(ABC):
         pass
 
     @abstractmethod
-    def add_device_for_capability(self, capability: Capability, alias: DeviceAlias) -> None:
+    def add_device_for_capability(self, capability: CapabilityName, alias: DeviceAlias) -> None:
         pass
 
     @abstractmethod
-    def remove_device_for_capability(self, capability: Capability, alias: DeviceAlias) -> None:
+    def remove_device_for_capability(self, capability: CapabilityName, alias: DeviceAlias) -> None:
         pass
 
     @abstractmethod
-    def add_device_for_capability_and_room(self, capability: Capability, room: str | None, alias: DeviceAlias) -> None:
+    def add_device_for_capability_and_room(self, capability: CapabilityName, room: RoomName | None, alias: DeviceAlias) -> None:
         pass
 
     @abstractmethod
-    def remove_device_for_capability_and_room(self, capability: Capability, room: str | None, alias: DeviceAlias) -> None:
+    def remove_device_for_capability_and_room(self, capability: CapabilityName, room: RoomName | None, alias: DeviceAlias) -> None:
         pass
 
     @abstractmethod
-    def add_device_for_capability_and_attribute(self, capability: Capability, attr_key: str, attr_value: str, alias: DeviceAlias) -> None:
+    def add_device_for_capability_and_attribute(self, capability: CapabilityName, attr_key: str, attr_value: str, alias: DeviceAlias) -> None:
         pass
 
     @abstractmethod
-    def remove_device_for_capability_and_attribute(self, capability: Capability, attr_key: str, attr_value: str, alias: DeviceAlias) -> None:
+    def remove_device_for_capability_and_attribute(self, capability: CapabilityName, attr_key: str, attr_value: str, alias: DeviceAlias) -> None:
         pass
 
     @abstractmethod
-    def set_last_device_attr_value(self, capability: Capability | None, alias: DeviceAlias, attr_key: str, attr_value: str | None) -> None:
+    def set_last_device_attr_value(self, capability: CapabilityName | None, alias: DeviceAlias, attr_key: str, attr_value: str | None) -> None:
         pass
 
     @abstractmethod
-    def set_capabilities_for_device_id(self, device_id: int, capabilities: set[Capability]) -> None:
+    def set_capabilities_for_device_id(self, device_id: int, capabilities: set[CapabilityName]) -> None:
         pass
 
     @abstractmethod
-    def set_last_device_attr_timestamp(self, capability: Capability | None, alias: DeviceAlias, attr_key: str, attr_value: str | None, timestamp: int) -> None:
+    def set_last_device_attr_timestamp(self, capability: CapabilityName | None, alias: DeviceAlias, attr_key: str, attr_value: str | None, timestamp: int) -> None:
         pass
 
     # Cache accessors
 
     @abstractmethod
-    def get_devices_by_capability(self, capability: Capability) -> set[DeviceAlias]:
+    def get_devices_by_capability(self, capability: CapabilityName) -> set[DeviceAlias]:
         pass
 
     @abstractmethod
-    def get_devices_by_capability_and_room(self, capability: Capability, room: str | None) -> set[DeviceAlias]:
+    def get_devices_by_capability_and_room(self, capability: CapabilityName, room: RoomName | None) -> set[DeviceAlias]:
         pass
 
     @abstractmethod
-    def get_devices_by_capability_and_attribute(self, capability: Capability, attr_key: str, attr_value: str) -> set[DeviceAlias]:
+    def get_devices_by_capability_and_attribute(self, capability: CapabilityName, attr_key: str, attr_value: str) -> set[DeviceAlias]:
         pass
 
     @abstractmethod
-    def get_capabilities_for_device_id(self, device_id: int) -> set[Capability]:
+    def get_capabilities_for_device_id(self, device_id: int) -> set[CapabilityName]:
         pass
 
     @abstractmethod
-    def get_last_device_attr_value(self, capability: Capability | None, alias: DeviceAlias, attr_key: str) -> str | None:
+    def get_last_device_attr_value(self, capability: CapabilityName | None, alias: DeviceAlias, attr_key: str) -> str | None:
         pass
 
     @abstractmethod
-    def get_last_device_attr_timestamp(self, capability: Capability | None, alias: DeviceAlias, attr_key: str, attr_value: str | None) -> int | None:
+    def get_last_device_attr_timestamp(self, capability: CapabilityName | None, alias: DeviceAlias, attr_key: str, attr_value: str | None) -> int | None:
         pass
 
 
@@ -85,56 +86,56 @@ class InMemoryDeviceCache(DeviceCache):
         self.cached_cap_to_alias_to_attr = dict()
         self.cached_device_id_to_capabilities = dict()
 
-    def add_device_for_capability(self, capability: Capability, alias: DeviceAlias) -> None:
+    def add_device_for_capability(self, capability: CapabilityName, alias: DeviceAlias) -> None:
         self.cached_cap_to_aliases[capability].add(alias)
 
-    def remove_device_for_capability(self, capability: Capability, alias: DeviceAlias) -> None:
+    def remove_device_for_capability(self, capability: CapabilityName, alias: DeviceAlias) -> None:
         self.cached_cap_to_aliases[capability].remove(alias)
 
-    def add_device_for_capability_and_room(self, capability: Capability, room: str | None, alias: DeviceAlias) -> None:
+    def add_device_for_capability_and_room(self, capability: CapabilityName, room: RoomName | None, alias: DeviceAlias) -> None:
         self.cached_cap_to_room_to_aliases[capability][room].add(alias)
 
-    def remove_device_for_capability_and_room(self, capability: Capability, room: str | None, alias: DeviceAlias) -> None:
+    def remove_device_for_capability_and_room(self, capability: CapabilityName, room: RoomName | None, alias: DeviceAlias) -> None:
         self.cached_cap_to_room_to_aliases[capability][room].remove(alias)
 
-    def add_device_for_capability_and_attribute(self, capability: Capability, attr_key: str, attr_value: str, alias: DeviceAlias) -> None:
+    def add_device_for_capability_and_attribute(self, capability: CapabilityName, attr_key: str, attr_value: str, alias: DeviceAlias) -> None:
         k = (capability, attr_key, attr_value)
         self.cached_cap_to_attr_to_aliases[k].add(alias)
 
-    def remove_device_for_capability_and_attribute(self, capability: Capability, attr_key: str, attr_value: str, alias: DeviceAlias) -> None:
+    def remove_device_for_capability_and_attribute(self, capability: CapabilityName, attr_key: str, attr_value: str, alias: DeviceAlias) -> None:
         k = (capability, attr_key, attr_value)
         self.cached_cap_to_attr_to_aliases[k].remove(alias)
 
-    def set_capabilities_for_device_id(self, device_id: int, capabilities: set[Capability]) -> None:
+    def set_capabilities_for_device_id(self, device_id: int, capabilities: set[CapabilityName]) -> None:
         self.cached_device_id_to_capabilities[device_id] = capabilities
 
-    def set_last_device_attr_value(self, capability: Capability | None, alias: DeviceAlias, attr_key: str, attr_value: str | None) -> None:
+    def set_last_device_attr_value(self, capability: CapabilityName | None, alias: DeviceAlias, attr_key: str, attr_value: str | None) -> None:
         k = (capability, alias, attr_key)
         self.cached_cap_to_alias_to_attr[k] = attr_value
 
-    def set_last_device_attr_timestamp(self, capability: Capability | None, alias: DeviceAlias, attr_key: str, attr_value: str | None, timestamp: int) -> None:
+    def set_last_device_attr_timestamp(self, capability: CapabilityName | None, alias: DeviceAlias, attr_key: str, attr_value: str | None, timestamp: int) -> None:
         k = (capability, alias, attr_key, attr_value)
         self.cached_cap_to_alias_to_attr_to_timestamp[k] = timestamp
 
     # Cache accessors
 
-    def get_devices_by_capability(self, capability: Capability) -> set[DeviceAlias]:
+    def get_devices_by_capability(self, capability: CapabilityName) -> set[DeviceAlias]:
         return self.cached_cap_to_aliases[capability]
 
-    def get_devices_by_capability_and_room(self, capability: Capability, room: str | None) -> set[DeviceAlias]:
+    def get_devices_by_capability_and_room(self, capability: CapabilityName, room: RoomName | None) -> set[DeviceAlias]:
         return self.cached_cap_to_room_to_aliases[capability]
 
-    def get_devices_by_capability_and_attribute(self, capability: Capability, attr_key: str, attr_value: str) -> set[DeviceAlias]:
+    def get_devices_by_capability_and_attribute(self, capability: CapabilityName, attr_key: str, attr_value: str) -> set[DeviceAlias]:
         k = (capability, attr_key, attr_value)
         return self.cached_cap_to_attr_to_aliases.get(k)
 
-    def get_capabilities_for_device_id(self, device_id: int) -> set[Capability]:
+    def get_capabilities_for_device_id(self, device_id: int) -> set[CapabilityName]:
         return self.cached_device_id_to_capabilities.get(device_id, set())
 
-    def get_last_device_attr_value(self, capability: Capability | None, alias: DeviceAlias, attr_key: str) -> str | None:
+    def get_last_device_attr_value(self, capability: CapabilityName | None, alias: DeviceAlias, attr_key: str) -> str | None:
         k = (capability, alias, attr_key)
         return self.cached_cap_to_alias_to_attr.get(k)
 
-    def get_last_device_attr_timestamp(self, capability: Capability | None, alias: DeviceAlias, attr_key: str | None, attr_value: str | None) -> int | None:
+    def get_last_device_attr_timestamp(self, capability: CapabilityName | None, alias: DeviceAlias, attr_key: str | None, attr_value: str | None) -> int | None:
         k = (capability, alias, attr_key, attr_value)
         return self.cached_cap_to_alias_to_attr_to_timestamp.get(k)

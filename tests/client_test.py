@@ -136,6 +136,14 @@ def test_get_on_switches(mock_client):
     assert mock_client.get_on_switches() == {FAKE_SWITCH_ON['label']}
 
 
+def test_get_capabilities(mock_client):
+    assert mock_client.get_capabilities() == {c for capabilities in FAKE_DEVICES_ALL for c in capabilities['capabilities']}
+
+
+def test_get_rooms(mock_client):
+    assert mock_client.get_rooms() == {d['room'] for d in FAKE_DEVICES_ALL}
+
+
 def test_get_mode(mock_client):
     assert mock_client.get_mode() == FAKE_ACTIVE_MODE
 
