@@ -1,32 +1,32 @@
 from datetime import datetime
-from typing import Optional
-from typing import Set
 
 from hubitat_maker_api_client.api_client import HubitatAPIClient
+from hubitat_maker_api_client.client import Capability
+from hubitat_maker_api_client.client import DeviceAlias
 from hubitat_maker_api_client.client import HubitatClient
 from hubitat_maker_api_client.device_cache import DeviceCache
 from hubitat_maker_api_client.event_socket import HubitatEvent
 
 
 ATTR_KEY_TO_CAPABILITY = {
-    'battery': 'MotionSensor',
-    'contact': 'ContactSensor',
-    'energy': 'EnergyMeter',
-    'illuminance': 'IlluminanceMeasurement',
-    'lock': 'Lock',
-    'motion': 'MotionSensor',
-    'power': 'PowerMeter',
-    'presence': 'PresenceSensor',
-    'switch': 'Switch',
+    'battery': Capability('MotionSensor'),
+    'contact': Capability('ContactSensor'),
+    'energy': Capability('EnergyMeter'),
+    'illuminance': Capability('IlluminanceMeasurement'),
+    'lock': Capability('Lock'),
+    'motion': Capability('MotionSensor'),
+    'power': Capability('PowerMeter'),
+    'presence': Capability('PresenceSensor'),
+    'switch': Capability('Switch'),
 }
 
 
 SUPPORTED_ACCESSOR_ATTRS = [
-    ('ContactSensor', 'contact', 'open'),
-    ('Lock', 'lock', 'unlocked'),
-    ('MotionSensor', 'motion', 'active'),
-    ('Switch', 'switch', 'on'),
-    ('PresenceSensor', 'presence', 'present'),
+    (Capability('ContactSensor'), 'contact', 'open'),
+    (Capability('Lock'), 'lock', 'unlocked'),
+    (Capability('MotionSensor'), 'motion', 'active'),
+    (Capability('Switch'), 'switch', 'on'),
+    (Capability('PresenceSensor'), 'presence', 'present'),
 ]
 
 
@@ -65,8 +65,8 @@ class HubitatCachingClient(HubitatClient):
             self.load_cache()
 
     def load_cache(self) -> None:
-        self.device_cache.set_last_device_attr_value(None, 'Home', 'mode', self._get_mode_from_api())
-        self.device_cache.set_last_device_attr_value(None, 'Home', 'hsmStatus', self._get_hsm_from_api())
+        self.device_cache.set_last_device_attr_value(None, DeviceAlias('Home'), 'mode', self._get_mode_from_api())
+        self.device_cache.set_last_device_attr_value(None, DeviceAlias('Home'), 'hsmStatus', self._get_hsm_from_api())
 
         devices = self.api_client.get_devices()
         for device in devices:
@@ -89,32 +89,32 @@ class HubitatCachingClient(HubitatClient):
                             else:
                                 self.device_cache.set_last_device_attr_timestamp(capability, alias, k, v, timestamp)
 
-    def get_devices_by_capability(self, capability: str) -> Set[str]:
+    def get_devices_by_capability(self, capability: Capability) -> set[DeviceAlias]:
         return self.device_cache.get_devices_by_capability(capability)
 
-    def get_devices_by_capability_and_room(self, capability: str, room: Optional[str]) -> Set[str]:
+    def get_devices_by_capability_and_room(self, capability: Capability, room: str | None) -> set[DeviceAlias]:
         return self.device_cache.get_devices_by_capability_and_room(capability, room)
 
-    def get_devices_by_capability_and_attribute(self, capability: str, attr_key: str, attr_value: str) -> Set[str]:
+    def get_devices_by_capability_and_attribute(self, capability: Capability, attr_key: str, attr_value: str) -> set[DeviceAlias]:
         return self.device_cache.get_devices_by_capability_and_attribute(capability, attr_key, attr_value)
 
-    def get_capabilities_for_device_id(self, device_id: int) -> Set[str]:
+    def get_capabilities_for_device_id(self, device_id: int) -> set[Capability]:
         return self.device_cache.get_capabilities_for_device_id(device_id)
 
     # Device accessors
 
-    def get_mode(self) -> Optional[str]:
-        return self.device_cache.get_last_device_attr_value(None, 'Home', 'mode')
+    def get_mode(self) -> str | None:
+        return self.device_cache.get_last_device_attr_value(None, DeviceAlias('Home'), 'mode')
 
-    def get_hsm(self) -> str:
-        return self.device_cache.get_last_device_attr_value(None, 'Home', 'hsmStatus')
+    def get_hsm(self) -> str | None:
+        return self.device_cache.get_last_device_attr_value(None, DeviceAlias('Home'), 'hsmStatus')
 
-    def get_last_device_value(self, alias: str, attr_key: str, capability: Optional[str] = None) -> Optional[str]:
+    def get_last_device_value(self, alias: DeviceAlias, attr_key: str, capability: Capability | None = None) -> str | None:
         if not capability:
             capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
         return self.device_cache.get_last_device_attr_value(capability, alias, attr_key)
 
-    def get_last_device_timestamp(self, alias: str, attr_key: str, attr_value: str, capability: Optional[str] = None) -> Optional[int]:
+    def get_last_device_timestamp(self, alias: DeviceAlias, attr_key: str, attr_value: str, capability: Capability | None = None) -> int | None:
         if not capability:
             capability = ATTR_KEY_TO_CAPABILITY.get(attr_key)
         return self.device_cache.get_last_device_attr_timestamp(capability, alias, attr_key, attr_value)

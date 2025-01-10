@@ -1,5 +1,4 @@
 import requests
-from typing import Optional
 
 from hubitat_maker_api_client.constants import HSM_STATE_TO_ACTION
 
@@ -13,7 +12,7 @@ class HubitatAPIClient():
         app_id: str,
         access_token: str,
         host: str = CLOUD_API_HOST,
-        hub_id: Optional[str] = None,
+        hub_id: str | None = None,
     ) -> None:
         self.host = host
         self.app_id = app_id
