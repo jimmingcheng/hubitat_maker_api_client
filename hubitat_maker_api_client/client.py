@@ -14,6 +14,7 @@ from hubitat_maker_api_client.capabilities import MotionSensorCapability
 from hubitat_maker_api_client.capabilities import PresenceSensorCapability
 from hubitat_maker_api_client.capabilities import SpeechSynthesisCapability
 from hubitat_maker_api_client.capabilities import SwitchCapability
+from hubitat_maker_api_client.capabilities import supported_capabilities
 from hubitat_maker_api_client.errors import DeviceNotFoundError
 from hubitat_maker_api_client.errors import MultipleDevicesFoundError
 
@@ -116,8 +117,14 @@ class HubitatClient():
             return self.api_client.send_device_command(matched_device_ids[0], command, *secondary_values)
 
     # Capabilities
-    def get_capabilities(self) -> set[CapabilityName]:
-        return set(self._get_capability_to_alias_to_device_ids().keys())
+    def get_capabilities(self, supported_only: bool = True) -> set[CapabilityName]:
+        all_capabilities = set(self._get_capability_to_alias_to_device_ids().keys())
+        if supported_only:
+            print('bolly')
+            print(supported_capabilities())
+            return all_capabilities & {c.name for c in supported_capabilities()}
+        else:
+            return all_capabilities
 
     # Rooms
     def get_rooms(self) -> set[RoomName]:
