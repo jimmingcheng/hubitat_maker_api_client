@@ -120,8 +120,6 @@ class HubitatClient():
     def get_capabilities(self, supported_only: bool = True) -> set[CapabilityName]:
         all_capabilities = set(self._get_capability_to_alias_to_device_ids().keys())
         if supported_only:
-            print('bolly')
-            print(supported_capabilities())
             return all_capabilities & {c.name for c in supported_capabilities()}
         else:
             return all_capabilities

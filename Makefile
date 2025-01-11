@@ -11,6 +11,7 @@ test: venv
 
 .PHONY: package
 package: venv
+	rm -fr dist/*
 	venv/bin/python setup.py sdist bdist_wheel
 
 .PHONY: deploy-to-pypi
