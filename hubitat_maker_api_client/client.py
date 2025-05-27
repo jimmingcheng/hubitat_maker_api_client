@@ -107,7 +107,7 @@ class HubitatClient():
             if type(capability) == CapabilityName
         }
 
-    def _send_device_command_cy_capability_and_alias(self, capability: CapabilityName, alias: DeviceAlias, command: str, *secondary_values) -> dict:
+    def _send_device_command_by_capability_and_alias(self, capability: CapabilityName, alias: DeviceAlias, command: str, *secondary_values) -> dict:
         matched_device_ids = self._get_capability_to_alias_to_device_ids().get(capability, {}).get(alias, [])
         if not matched_device_ids:
             raise DeviceNotFoundError('Unable to find {} {}'.format(capability, alias))
@@ -197,57 +197,63 @@ class HubitatClient():
 
     # Device commands
     def open_door(self, alias: DeviceAlias) -> dict:
-        return self._send_device_command_cy_capability_and_alias(DoorControlCapability.name, alias, 'open')
+        return self._send_device_command_by_capability_and_alias(DoorControlCapability.name, alias, 'open')
 
     def close_door(self, alias: DeviceAlias) -> dict:
-        return self._send_device_command_cy_capability_and_alias(DoorControlCapability.name, alias, 'close')
+        return self._send_device_command_by_capability_and_alias(DoorControlCapability.name, alias, 'close')
 
     def lock_door(self, alias: DeviceAlias) -> dict:
-        return self._send_device_command_cy_capability_and_alias(LockCapability.name, alias, 'lock')
+        return self._send_device_command_by_capability_and_alias(LockCapability.name, alias, 'lock')
 
     def unlock_door(self, alias: DeviceAlias) -> dict:
-        return self._send_device_command_cy_capability_and_alias(LockCapability.name, alias, 'unlock')
+        return self._send_device_command_by_capability_and_alias(LockCapability.name, alias, 'unlock')
 
     def turn_on_switch(self, alias: DeviceAlias) -> dict:
-        return self._send_device_command_cy_capability_and_alias(SwitchCapability.name, alias, 'on')
+        return self._send_device_command_by_capability_and_alias(SwitchCapability.name, alias, 'on')
 
     def turn_off_switch(self, alias: DeviceAlias) -> dict:
-        return self._send_device_command_cy_capability_and_alias(SwitchCapability.name, alias, 'off')
+        return self._send_device_command_by_capability_and_alias(SwitchCapability.name, alias, 'off')
 
     def arrived(self, alias: DeviceAlias) -> dict:
-        return self._send_device_command_cy_capability_and_alias(PresenceSensorCapability.name, alias, 'arrived')
+        return self._send_device_command_by_capability_and_alias(PresenceSensorCapability.name, alias, 'arrived')
 
     def departed(self, alias: DeviceAlias) -> dict:
-        return self._send_device_command_cy_capability_and_alias(PresenceSensorCapability.name, alias, 'departed')
+        return self._send_device_command_by_capability_and_alias(PresenceSensorCapability.name, alias, 'departed')
 
     def set_lux(self, alias: DeviceAlias, lux: int) -> dict:
-        return self._send_device_command_cy_capability_and_alias(IlluminanceMeasurementCapability.name, alias, 'setLux', lux)
+        return self._send_device_command_by_capability_and_alias(IlluminanceMeasurementCapability.name, alias, 'setLux', lux)
 
     # Echo speaks
     def echo_set_volume_and_speak(self, alias: DeviceAlias, volume: int, message: str) -> dict:
-        return self._send_device_command_cy_capability_and_alias(SpeechSynthesisCapability.name, alias, 'setVolumeAndSpeak', volume, message)
+        return self._send_device_command_by_capability_and_alias(SpeechSynthesisCapability.name, alias, 'setVolumeAndSpeak', volume, message)
 
     def echo_voice_cmd_as_text(self, alias: DeviceAlias, message: str) -> dict:
-        return self._send_device_command_cy_capability_and_alias(SpeechSynthesisCapability.name, alias, 'voiceCmdAsText', message)
+        return self._send_device_command_by_capability_and_alias(SpeechSynthesisCapability.name, alias, 'voiceCmdAsText', message)
 
     def echo_parallel_speak(self, alias: DeviceAlias, message: str) -> dict:
-        return self._send_device_command_cy_capability_and_alias(SpeechSynthesisCapability.name, alias, 'parallelSpeak', message)
+        return self._send_device_command_by_capability_and_alias(SpeechSynthesisCapability.name, alias, 'parallelSpeak', message)
 
     def echo_set_volume_speak_and_restore(self, alias: DeviceAlias, volume: int, message: str, restore_volume: int) -> dict:
-        return self._send_device_command_cy_capability_and_alias(SpeechSynthesisCapability.name, alias, 'setVolumeSpeakAndRestore', volume, message, restore_volume)
+        return self._send_device_command_by_capability_and_alias(SpeechSynthesisCapability.name, alias, 'setVolumeSpeakAndRestore', volume, message, restore_volume)
 
     def echo_play_announcement(self, alias: DeviceAlias, message: str) -> dict:
-        return self._send_device_command_cy_capability_and_alias(SpeechSynthesisCapability.name, alias, 'playAnnouncement', message)
+        return self._send_device_command_by_capability_and_alias(SpeechSynthesisCapability.name, alias, 'playAnnouncement', message)
 
     def echo_play_announcement_all(self, alias: DeviceAlias, message: str) -> dict:
-        return self._send_device_command_cy_capability_and_alias(SpeechSynthesisCapability.name, alias, 'playAnnouncementAll', message)
+        return self._send_device_command_by_capability_and_alias(SpeechSynthesisCapability.name, alias, 'playAnnouncementAll', message)
 
-    def echo_room_announce(self, room: RoomName, message: str) -> dict:
-        for echo in self.get_devices_by_capability_and_room(SpeechSynthesisCapability.name, room):
-            self.echo_play_announcement(echo, message)
-        return {}
+    # Intercom
+    def get_intercom_rooms(self) -> set[RoomName]:
+        return set([
+            k for k in
+            self._get_capability_to_room_to_aliases()[SpeechSynthesisCapability.name].keys()
+            if k
+        ])
 
-    def echo_room_speak(self, room: RoomName, message: str) -> dict:
+    def intercom_speak(self, room: RoomName, message: str, chime_before_message: bool = False) -> None:
+        message = message.replace(',', '...')  # Echo speaks can't handle commas well
         for echo in self.get_devices_by_capability_and_room(SpeechSynthesisCapability.name, room):
-            self.echo_parallel_speak(echo, message)
-        return {}
+            if chime_before_message:
+                self.echo_play_announcement(echo, message)
+            else:
+                self.echo_parallel_speak(echo, message)
